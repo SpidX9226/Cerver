@@ -1,3 +1,4 @@
+#include "utils/write_http.h"
 #include <err.h>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -38,12 +39,11 @@ int main() {
         err(EXIT_FAILURE, "listen");
     }
 
-    const char *http_respone =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/html; charset=UTF-8\r\n"
-        "Connection: close\r\n"
-        "\r\n"
+    const char *const html =
         "<!DOCTYPE html><html><body><h1>Hello From C!</h1></body></html>";
+    char http_response[2046];
+
+    create_http_html(http_response, sizeof(http_response), html, 200);
 
     while (1) {
         client_fd =
@@ -57,7 +57,7 @@ int main() {
         read(client_fd, buffer, BUFFER_SIZE - 1);
         printf("Received request: %s\n", buffer);
 
-        write(client_fd, http_respone, strlen(http_respone));
+        write(client_fd, http_response, strlen(http_response));
         close(client_fd);
     }
 
